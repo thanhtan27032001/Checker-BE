@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GadenCheckIn.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+65a1a02c4778b8aaf065a5551c63d01250f464d8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6b25739c64ecb5cfeedeedd4e4c6cf50634056a9")]
 [assembly: System.Reflection.AssemblyProductAttribute("GadenCheckIn.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GadenCheckIn.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
