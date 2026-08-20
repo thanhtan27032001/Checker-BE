@@ -8,4 +8,6 @@ public class Department
     public required string Name { get; set; }
     public Guid? ManagerId { get; set; }
     public Employee? Manager { get; set; }
+    
+    public ICollection<Employee> Employees { get; set; } = [];
 }

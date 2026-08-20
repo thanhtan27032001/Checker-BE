@@ -1,3 +1,6 @@
+using GadenCheckIn.API.Dtos.Employee;
+using GadenCheckIn.API.Mappers;
+
 namespace GadenCheckIn.API.Entities;
 
 public enum EmployeeRole { Admin, Manager, Staff }
@@ -24,4 +27,5 @@ public class Employee
  
     public ICollection<AttendanceRecord> AttendanceRecords { get; set; } = [];
     public ICollection<LeaveRequest> LeaveRequests { get; set; } = [];
+    public ICollection<LeaveRequest> ApprovedLeaveRequests { get; set; } = [];
 }

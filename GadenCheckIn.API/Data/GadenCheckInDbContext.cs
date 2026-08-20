@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GadenCheckIn.API.Data;
 
-public class GadenCheckInDbContext(DbContextOptions<GadenCheckInDbContext> options) : DbContext
+public class GadenCheckInDbContext(DbContextOptions<GadenCheckInDbContext> options) : DbContext(options)
 {
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<Department> Departments => Set<Department>();
@@ -40,6 +40,34 @@ public class GadenCheckInDbContext(DbContextOptions<GadenCheckInDbContext> optio
         modelBuilder.Entity<AttendanceRecord>()
             .HasOne(a => a.Employee)
             .WithMany(e => e.AttendanceRecords)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        // LeaveRequest.Employee ↔ Employee.LeaveRequests
+        modelBuilder.Entity<LeaveRequest>()
+            .HasOne(lr => lr.Employee)
+            .WithMany(e => e.LeaveRequests)
+            .HasForeignKey(lr => lr.EmployeeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // LeaveRequest.Approver ↔ Employee.ApprovedLeaveRequests
+        modelBuilder.Entity<LeaveRequest>()
+            .HasOne(lr => lr.Approver)
+            .WithMany(e => e.ApprovedLeaveRequests)
+            .HasForeignKey(lr => lr.ApproverId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        // Department.Employees (1-many) Employee.DepartmentId
+        modelBuilder.Entity<Employee>()
+            .HasOne(e => e.Department)
+            .WithMany(d => d.Employees)
+            .HasForeignKey(e => e.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // manager contains many employees
+        modelBuilder.Entity<Department>()
+            .HasOne(d => d.Manager)
+            .WithMany()
+            .HasForeignKey(d => d.ManagerId)
             .OnDelete(DeleteBehavior.Restrict);
     }
     
