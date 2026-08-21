@@ -25,7 +25,7 @@ public class WorkSchedule
         if ((departmentId != null) == (employeeId != null))
         {
             throw new ArgumentException(
-                "WorkSchedule phải gắn với ĐÚNG 1 trong 2: department hoặc employee");
+                "WorkSchedule only support 1 department or 1 employee id");
         }
         
         return new WorkSchedule
