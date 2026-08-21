@@ -7,8 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GadenCheckIn.API.Services;
 
-public class AttendanceService(GadenCheckInDbContext db) : IAttendanceService
+public class AttendanceService(GadenCheckInDbContext db, IWorkScheduleService workScheduleService) : IAttendanceService
 {
+    private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh");
+    private static readonly Int16 AllowLateMinutes = 15;
     public async Task<AttendanceResponseDto> CheckIn(CheckInDto checkInDto)
     {
         var employeeExists = await db.Employees.AnyAsync(e => e.Id == checkInDto.EmployeeId);
@@ -24,12 +26,13 @@ public class AttendanceService(GadenCheckInDbContext db) : IAttendanceService
             throw new BusinessRuleException("You have already opened a attendance record for this employee");
         }
 
+        var status = await DetermineStatusAsync(checkInDto.EmployeeId, DateTimeOffset.UtcNow);
         var record = new AttendanceRecord
         {
             EmployeeId = checkInDto.EmployeeId,
             CheckInTime = DateTimeOffset.UtcNow,
             CheckInMethod = checkInDto.Method,
-            Status = AttendanceStatus.OnTime
+            Status = status,
         };
             
         db.Add(record);
@@ -82,4 +85,24 @@ public class AttendanceService(GadenCheckInDbContext db) : IAttendanceService
         db.AttendanceRecords.Remove(record);
         await db.SaveChangesAsync();
     }
+
+    private async Task<AttendanceStatus> DetermineStatusAsync(Guid employeeId, DateTimeOffset checkInTimeUtc)
+    {
+        var checkInLocal = TimeZoneInfo.ConvertTime(checkInTimeUtc, VietnamTimeZone);
+        var employeeWorkSchedule = await workScheduleService.GetApplicableScheduleAsync(employeeId, checkInLocal.DayOfWeek);
+        if (employeeWorkSchedule == null)
+        {
+            return AttendanceStatus.OnTime;
+        }
+
+        var graceLimit = employeeWorkSchedule.StartTime.AddMinutes(AllowLateMinutes);
+        var checkInTime = TimeOnly.FromDateTime(checkInLocal.DateTime);
+        
+        return checkInTime > graceLimit ? AttendanceStatus.Late :  AttendanceStatus.OnTime;
+    }
+
+    // private async Task<AttendanceStatus> DetermineCheckOutStatusAsync()
+    // {
+    //     
+    // }
 }
