@@ -1,3 +1,4 @@
+using GadenCheckIn.API.Common.Exceptions;
 using GadenCheckIn.API.Data;
 using GadenCheckIn.API.Dtos.Attendence;
 using GadenCheckIn.API.Entities;
@@ -13,14 +14,14 @@ public class AttendanceService(GadenCheckInDbContext db) : IAttendanceService
         var employeeExists = await db.Employees.AnyAsync(e => e.Id == checkInDto.EmployeeId);
         if (!employeeExists)
         {
-            throw new KeyNotFoundException($"No employee found with id = {checkInDto.EmployeeId}");
+            throw new NotFoundException($"No employee found with id = {checkInDto.EmployeeId}");
         }
         
         var hasOpenSession = await db.AttendanceRecords
             .AnyAsync(record => record.EmployeeId == checkInDto.EmployeeId && record.CheckOutTime == null);
         if (hasOpenSession)
         {
-            throw new InvalidOperationException("You have already opened a attendance record for this employee");
+            throw new BusinessRuleException("You have already opened a attendance record for this employee");
         }
 
         var record = new AttendanceRecord
@@ -50,7 +51,7 @@ public class AttendanceService(GadenCheckInDbContext db) : IAttendanceService
             .FirstOrDefaultAsync();
         if (record == null)
         {
-            throw new InvalidOperationException(message: "Attendance record not found");
+            throw new NotFoundException(message: "Attendance record not found");
         }
         
         // check out
@@ -76,7 +77,7 @@ public class AttendanceService(GadenCheckInDbContext db) : IAttendanceService
             .FindAsync(id);
         if (record == null)
         {
-            throw new KeyNotFoundException($"No record found with id = {id}");
+            throw new NotFoundException($"No record found with id = {id}");
         }
         db.AttendanceRecords.Remove(record);
         await db.SaveChangesAsync();

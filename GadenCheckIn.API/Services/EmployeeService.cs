@@ -1,3 +1,4 @@
+using GadenCheckIn.API.Common.Exceptions;
 using GadenCheckIn.API.Data;
 using GadenCheckIn.API.Dtos.Employee;
 using GadenCheckIn.API.Entities;
@@ -14,7 +15,7 @@ public class EmployeeService(GadenCheckInDbContext db) : IEmployeeService
             e => e.CompanyId == dto.CompanyId && e.Email == dto.Email);
         if (emailExists)
         {
-            throw new InvalidOperationException($"Email {dto.Email} is already taken");
+            throw new BusinessRuleException($"Email {dto.Email} is already taken");
         }
         
         var entity = new Employee
@@ -38,7 +39,7 @@ public class EmployeeService(GadenCheckInDbContext db) : IEmployeeService
 
         if (entity is null)
         {
-            throw new KeyNotFoundException($"No employee with id {id} was found");
+            throw new NotFoundException($"No employee with id {id} was found");
         }
 
         return entity.ToResponseDto();

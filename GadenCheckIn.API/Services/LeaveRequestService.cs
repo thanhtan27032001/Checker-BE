@@ -1,3 +1,4 @@
+using GadenCheckIn.API.Common.Exceptions;
 using GadenCheckIn.API.Data;
 using GadenCheckIn.API.Dtos.LeaveRequest;
 using GadenCheckIn.API.Entities;
@@ -13,7 +14,7 @@ public class LeaveRequestService(GadenCheckInDbContext db) : ILeaveRequestServic
         var employeeExists = await db.Employees.AnyAsync(e => e.Id == dto.EmployeeId);
         if (!employeeExists)
         {
-            throw new KeyNotFoundException($"No employee found with id {dto.EmployeeId}");
+            throw new NotFoundException($"No employee found with id {dto.EmployeeId}");
         }
         var entity = LeaveRequest.Create(
             dto.EmployeeId,
@@ -79,12 +80,12 @@ public class LeaveRequestService(GadenCheckInDbContext db) : ILeaveRequestServic
         
         if (entity == null)
         {
-            throw new KeyNotFoundException($"No leave request found with id {id}");
+            throw new NotFoundException($"No leave request found with id {id}");
         }
 
         if (entity.Status != LeaveStatus.Pending)
         {
-            throw new InvalidOperationException($"The leave request status {entity.Status} is not pending.");
+            throw new BusinessRuleException($"The leave request status {entity.Status} is not pending.");
         }
 
         return entity;

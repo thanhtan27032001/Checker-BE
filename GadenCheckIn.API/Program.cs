@@ -1,4 +1,5 @@
 using GadenCheckIn.API.Data;
+using GadenCheckIn.API.Middleware;
 using GadenCheckIn.API.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,7 @@ builder.Services.AddDbContext<GadenCheckInDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
